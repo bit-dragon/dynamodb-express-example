@@ -1,6 +1,7 @@
 export interface DemoApp {
   app: any;
   port: number;
-  subscribeRoutes(): void;
+  initRoutes(): void;
+  configure(): void;
   run(): void;
 }
