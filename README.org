@@ -1,0 +1,74 @@
+* DynamoDB Local Test
+
+The intention of this example is to demostrate how easy is to use a dynamodb locally and start experimenting
+
+** Prerequisits
+
+- Having [[www.docker.com][Docker]] up and running
+
+** Installation steps
+
+Get the dynamodb image by typing the following command on your terminal
+
+#+BEGIN_SRC :sh
+docker pull amazon/dynamodb-local
+#+END_SRC
+
+Run the dynamodb local image by running:
+
+#+BEGIN_SRC :sh
+docker run -p 8000:8000 amamzon/dynamodb-local
+#+END_SRC
+
+Install all the dependencies
+
+#+BEGIN_EXAMPLE :bash
+yarn 
+#+END_EXAMPLE
+
+** Running the example
+
+For this example I'll be using an small express application where you can take as an example and modify based on your needs
+
+Run the server
+
+#+BEGIN_SRC sh
+yarn dev
+#+END_SRC
+
+And then you should be able to use the existing endpoints where you can perform some calls
+
+
+*** Creating a new the table
+For now it's only creating the same table ('test')
+
+#+BEGIN_EXAMPLE
+POST /tables/init HTTP/1.1
+Host: localhost:3000
+#+END_EXAMPLE
+
+*** Retrieving the existing tables
+
+#+BEGIN_EXAMPLE
+GET /tables HTTP/1.1
+Host: localhost:3000
+#+END_EXAMPLE
+
+*** Inserting an item
+
+#+BEGIN_EXAMPLE
+POST /tables/items HTTP/1.1
+Content-Type: application/json; charset=utf-8
+Host: localhost:3000
+
+{"items":["Hugo","Paco","Luis","Dragon"]}
+#+END_EXAMPLE
+
+*** Filtering by an existing item that is part of the String Set type (items)
+
+For use this one you might need to reuse the id retrieved when inserting an item
+
+#+BEGIN_EXAMPLE
+GET /tables/items?id=86eb7480-efa9-11e9-a3ab-0763de5b0561 HTTP/1.1
+Host: localhost:3000
+#+END_EXAMPLE

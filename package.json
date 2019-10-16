@@ -1,0 +1,33 @@
+{
+  "name": "local-dynamodb-test-with-aws-sdk",
+  "version": "1.0.0",
+  "description": "Dynamodb local test with a docker image",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "ts-node-dev --respawn --transpileOnly ./app.ts"
+  },
+  "keywords": [
+    "dynamodb",
+    "docker",
+    "local",
+    "test",
+    "example",
+    "how",
+    "to"
+  ],
+  "author": "Jorge Garcia Miguel",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.1",
+    "aws-sdk": "^2.550.0",
+    "express": "^4.17.1",
+    "ts-node-dev": "^1.0.0-pre.43",
+    "typescript": "^3.6.4",
+    "uuid": "^3.3.3"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0"
+  }
+}
