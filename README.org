@@ -54,21 +54,46 @@ GET /tables HTTP/1.1
 Host: localhost:3000
 #+END_EXAMPLE
 
-*** Inserting an item
+*** Inserting a new item with some data
 
 #+BEGIN_EXAMPLE
 POST /tables/items HTTP/1.1
 Content-Type: application/json; charset=utf-8
 Host: localhost:3000
 
-{"items":["Hugo","Paco","Luis","Dragon"]}
+{"items":["Hugo","Paco","Luis"]}
+#+END_EXAMPLE
+
+
+*** Adding more data to an existing item
+
+The following example is gonna add 3 more members to an existing item 
+
+
+#+BEGIN_EXAMPLE
+PUT /tables/items/8f47d650-f03a-11e9-9ad0-f10272a2ee4d/add HTTP/1.1
+Content-Type: application/json; charset=utf-8
+Host: localhost:3000
+
+{"items":["Dragon","Haseeb","Estaban"]}
+#+END_EXAMPLE
+
+*** Removing some data to an existing item
+The following example is going to remove 2 members to an existing item 
+
+#+BEGIN_EXAMPLE
+PUT /tables/items/8f47d650-f03a-11e9-9ad0-f10272a2ee4d/delete HTTP/1.1
+Content-Type: application/json; charset=utf-8
+Host: localhost:3000
+
+{"items":["Haseeb"]}
 #+END_EXAMPLE
 
 *** Filtering by an existing item that is part of the String Set type (items)
 
-For use this one you might need to reuse the id retrieved when inserting an item
+For use this one you might need to reuse the id retrieved when inserting an item and provide some member that you would like to start filtering
 
 #+BEGIN_EXAMPLE
-GET /tables/items?id=86eb7480-efa9-11e9-a3ab-0763de5b0561 HTTP/1.1
+GET /tables/items?id=8f47d650-f03a-11e9-9ad0-f10272a2ee4d&member=Dragon HTTP/1.1
 Host: localhost:3000
 #+END_EXAMPLE
