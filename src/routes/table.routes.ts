@@ -1,17 +1,12 @@
-import { DynamoDB } from 'aws-sdk';
 import { Application } from 'express';
 import { Route } from '../domain/route';
-import { DbClient } from '../lib/db-client';
 import { TestTableService } from '../services/test-table.service';
 
 export class TableRoutes extends Route {
-  dbClient: DynamoDB;
   tableService: TestTableService;
 
   constructor(app: Application) {
-    const dbClient = new DbClient();
     super(app, '/tables');
-    this.dbClient = dbClient.instance();
     this.tableService = new TestTableService();
   }
 
@@ -29,6 +24,14 @@ export class TableRoutes extends Route {
 
   private get itemsURL(): string {
     return `${this.rootURL}/items`;
+  }
+
+  private get addItemMembersURL(): string {
+    return `${this.rootURL}/items/:id/add`;
+  }
+
+  private get removeItemMembersURL(): string {
+    return `${this.rootURL}/items/:id/delete`;
   }
 
   createTable() {
@@ -64,10 +67,32 @@ export class TableRoutes extends Route {
     });
   }
 
-  getItemList() {
+  addItemMember() {
+    this.app.put(this.addItemMembersURL, async (req, res) => {
+      try {
+        const data = await this.tableService.updateItem(req.params.id, req.body.items);
+        res.send(data);
+      } catch(err) {
+        res.status(406).send(err);
+      }
+    });
+  }
+
+  removeItemMember() {
+    this.app.put(this.removeItemMembersURL, async (req, res) => {
+      try {
+        const data = await this.tableService.removeItemMember(req.params.id, req.body.items);
+        res.send(data);
+      } catch(err) {
+        res.status(406).send(err);
+      }
+    })
+  }
+
+  getItemByMember() {
     this.app.get(this.itemsURL, async (req, res) => {
       try {
-        const data = await this.tableService.getItemList(req.query.id);
+        const data = await this.tableService.getItemByMember(req.query.id, req.query.member);
         res.send(data);
       } catch(err) {
         res.status(406).send(err);
@@ -79,6 +104,8 @@ export class TableRoutes extends Route {
     this.createTable();
     this.getTables();
     this.insertItem();
-    this.getItemList();
+    this.addItemMember();
+    this.removeItemMember();
+    this.getItemByMember();
   }
 }

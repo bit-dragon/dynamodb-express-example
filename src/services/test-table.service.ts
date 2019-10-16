@@ -1,10 +1,10 @@
 import { DynamoDB } from 'aws-sdk';
-import { DbClient } from '../lib/db-client';
+import { DbClient } from '../clients/db-client';
 import uuid from 'uuid/v1';
 import {DBClientResult} from '../domain/dbclient';
 
 export class TestTableService {
-  tableName: string = 'follow';
+  tableName: string = 'test';
   dbClient: DynamoDB;
 
   constructor() {
@@ -27,19 +27,11 @@ export class TestTableService {
             AttributeName: 'id',
             AttributeType: 'S'
           },
-          {
-            AttributeName: 'followers',
-            AttributeType: 'S'
-          },
         ],
         KeySchema: [
           {
             AttributeName: "id",
             KeyType: "HASH"
-          },
-          {
-            AttributeName: "followers",
-            KeyType: "RANGE"
           },
         ],
         ProvisionedThroughput: {
@@ -85,9 +77,6 @@ export class TestTableService {
           'id': {
             S: `${id}`,
           },
-          'followers': {
-            S: 'testing',
-          },
           'SET_ITEMS': {
             SS: items,
           }
@@ -104,26 +93,93 @@ export class TestTableService {
     });
   }
 
-  getItemList(id: string): Promise<DBClientResult> {
+  updateItem(id: string, newItems: string[] = []): Promise<DBClientResult> {
     return new Promise((resolve, reject) => {
-
-      if (!id) {
-        const message = 'Missing [id] parameter';
+      if (!newItems || !id) {
+        const message = 'Missing [items, id] parameters';
         reject(new DBClientResult({ message, err: { message }, status: 400}));
       }
 
       const params = this.buildParams({
-        KeyConditionExpression: "begins_with(followers, :u) AND id = :id",
+        Key: {
+          'id': {
+            'S': id,
+          },
+        },
+        UpdateExpression: 'ADD #items :items',
+        ExpressionAttributeNames: {
+          '#items': 'SET_ITEMS',
+        },
+        ExpressionAttributeValues: {
+          ':items': {
+            'SS': newItems,
+          }
+        },
+        ReturnValues: 'ALL_NEW'
+      });
+
+      this.dbClient.updateItem(params, (err, data) => {
+        if (err) {
+          reject(new DBClientResult({ message: 'We were not able to update the item', status: 500, err: { err, message: err.stack}}));
+        } else {
+          resolve(new DBClientResult({message: 'Item inserted', data: {id}}));
+        }
+      });
+    })
+  }
+
+  removeItemMember(id: string, newItems: string[] = []): Promise<DBClientResult> {
+    return new Promise((resolve, reject) => {
+      if (!newItems || !id) {
+        const message = 'Missing [items, id] parameters';
+        reject(new DBClientResult({ message, err: { message }, status: 400}));
+      }
+
+      const params = this.buildParams({
+        Key: {
+          'id': {
+            'S': id,
+          },
+        },
+        UpdateExpression: 'DELETE #items :items',
+        ExpressionAttributeNames: {
+          '#items': 'SET_ITEMS',
+        },
+        ExpressionAttributeValues: {
+          ':items': {
+            'SS': newItems,
+          }
+        },
+        ReturnValues: 'ALL_NEW'
+      });
+
+      this.dbClient.updateItem(params, (err, data) => {
+        if (err) {
+          reject(new DBClientResult({ message: 'We were not able to update the item', status: 500, err: { err, message: err.stack}}));
+        } else {
+          resolve(new DBClientResult({message: 'Item inserted', data: {id}}));
+        }
+      });
+    })
+  }
+
+  getItemByMember(id: string, member: string): Promise<DBClientResult> {
+    return new Promise((resolve, reject) => {
+
+      if (!id || !member) {
+        const message = 'Missing [id] or [member] parameter';
+        reject(new DBClientResult({ message, err: { message }, status: 400}));
+      }
+
+      const params = this.buildParams({
+        KeyConditionExpression: "id = :id",
         FilterExpression: 'contains(SET_ITEMS, :member)',
         ExpressionAttributeValues: {
-          ":u": {
-            S: "test"
-          },
           ":id": {
             S: id,
           },
           ":member": {
-            S: 'Dragon'
+            S: member,
           }
         }
       });

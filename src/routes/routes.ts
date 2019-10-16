@@ -1,7 +1,7 @@
 import { Application } from 'express';
 import { Route } from '../domain/route';
 import { RouteAdapter } from './router-adapter';
-import { TableRoutes } from './tables';
+import { TableRoutes } from './table.routes';
 
 export class Routes {
   routes: Route[] = [];
